@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#050609">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>iBaila Touch</title>
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+:root{color-scheme:dark;--accent:#a98bff;--glow:0.55;--glass:rgba(12,14,22,.58)}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:#050609;color:#f7f5ff;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow:hidden}
+button{font:inherit;color:inherit;border:0;cursor:pointer}
+#app{position:relative;width:100%;height:100dvh;min-height:500px;overflow:hidden;background:radial-gradient(ellipse at 50% 40%,#211b35 0%,#0a0b12 52%,#030407 100%)}
+#backdrop{position:absolute;inset:-5%;background-position:center;background-size:cover;filter:blur(48px) saturate(1.35) brightness(.48);transform:scale(1.08);transition:background-image .5s ease;z-index:0}
+#videoBg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.48;display:none;z-index:1;filter:saturate(1.1) brightness(.68)}
+#shade{position:absolute;inset:0;z-index:2;background:linear-gradient(180deg,rgba(2,3,7,.55),rgba(2,3,7,.08) 42%,rgba(2,3,7,.75));pointer-events:none}
+#edge{position:absolute;inset:0;z-index:5;pointer-events:none;border:2px solid color-mix(in srgb,var(--accent),transparent 25%);box-shadow:inset 0 0 28px color-mix(in srgb,var(--accent),transparent 50%),inset 0 0 90px color-mix(in srgb,var(--accent),transparent 75%),0 0 28px color-mix(in srgb,var(--accent),transparent 70%);opacity:var(--glow);transition:opacity .15s}
+#visual{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none}
+#content{position:relative;z-index:6;height:100%;display:flex;flex-direction:column;padding:max(18px,env(safe-area-inset-top)) clamp(18px,4vw,54px) max(18px,env(safe-area-inset-bottom));}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{font-size:13px;letter-spacing:.28em;font-weight:800;text-transform:uppercase}.brand span{color:var(--accent)}
+.status{font-size:10px;letter-spacing:.16em;color:#c9c2d9;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.dot{width:7px;height:7px;border-radius:50%;background:#8bffcf;box-shadow:0 0 12px #8bffcf}
+.actions{display:flex;gap:8px}.glass{background:var(--glass);border:1px solid rgba(255,255,255,.13);backdrop-filter:blur(18px);border-radius:999px;padding:10px 14px;font-size:11px;letter-spacing:.06em}
+main{flex:1;display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,390px) minmax(0,1fr);align-items:center;gap:clamp(12px,3vw,42px);min-height:0}
+.side{display:flex;flex-direction:column;gap:14px;max-width:250px}.eyebrow{font-size:10px;letter-spacing:.22em;color:#c7bddb;text-transform:uppercase}.side h2{font-size:clamp(18px,2.3vw,27px);line-height:1.15;margin:0;font-weight:600}.side p{font-size:12px;color:#c0bacd;line-height:1.6;margin:0}
+.cover-wrap{position:relative;justify-self:center;width:min(34vw, min(390px, 46vh));min-width:230px;aspect-ratio:1;display:grid;place-items:center}
+.cover-wrap:before{content:"";position:absolute;inset:-18px;border-radius:32px;background:var(--accent);filter:blur(46px);opacity:calc(.15 + var(--pulse,0)*.35);transition:opacity .1s}
+#cover{position:relative;width:100%;height:100%;object-fit:cover;border-radius:22px;border:1px solid rgba(255,255,255,.18);box-shadow:0 25px 90px rgba(0,0,0,.55);background:linear-gradient(135deg,#28213d,#111522)}
+.cover-label{position:absolute;bottom:14px;left:14px;right:14px;font-size:9px;letter-spacing:.2em;color:#fff;text-shadow:0 2px 10px #000}
+.track{text-align:center;margin-top:28px}.track h1{font-size:clamp(22px,3vw,36px);font-weight:650;margin:0 0 8px;letter-spacing:-.035em}.track p{margin:0;color:#d0c9dc;font-size:13px}
+.center{display:flex;flex-direction:column;align-items:center;justify-content:center}
+#bars{height:68px;width:min(100%,320px);margin-top:18px}
+footer{display:flex;flex-direction:column;gap:14px}
+.progress{width:min(620px,100%);margin:auto}.times{display:flex;justify-content:space-between;color:#c1bacd;font-size:10px;margin-bottom:8px}
+input[type=range]{width:100%;accent-color:var(--accent);height:4px}
+.controls{display:flex;align-items:center;justify-content:center;gap:18px}.control{width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.12);font-size:16px}.control.primary{width:58px;height:58px;background:#f5f0ff;color:#15101f;font-size:22px;box-shadow:0 0 30px color-mix(in srgb,var(--accent),transparent 55%)}
+.bottom{display:flex;justify-content:space-between;align-items:center;gap:12px}.bottom small{color:#b8b1c5;font-size:10px;letter-spacing:.1em}
+#fileAudio{display:none}#fileArt{display:none}#fileVideo{display:none}
+.panel{position:absolute;z-index:20;right:18px;top:68px;width:min(330px,calc(100vw - 36px));padding:18px;border-radius:20px;background:rgba(10,11,18,.92);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(24px);box-shadow:0 18px 70px #0009;display:none}
+.panel.open{display:block}.panel h3{font-size:14px;margin:0 0 14px}.panel button,.panel label{display:flex;width:100%;justify-content:space-between;align-items:center;padding:12px 10px;border-radius:10px;background:rgba(255,255,255,.06);margin:7px 0;font-size:12px}.panel input[type=range]{width:110px}
+#toast{position:absolute;z-index:30;bottom:100px;left:50%;transform:translateX(-50%);background:#171421;border:1px solid #ffffff2a;border-radius:999px;padding:10px 15px;font-size:11px;color:#eee;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap}
+@media(max-width:760px){main{grid-template-columns:1fr;grid-template-rows:auto 1fr auto;gap:10px;padding:12px 0}.side{display:none}.cover-wrap{width:min(62vw,36vh);min-width:190px}.track{margin-top:20px}.status{display:none}#bars{height:48px}.bottom small{display:none}.bottom{justify-content:center}.actions .glass{padding:9px 11px}}
+@media(max-height:650px){.cover-wrap{width:min(27vw,38vh);min-width:180px}.track{margin-top:12px}.track h1{font-size:22px}#bars{height:38px}}
+</style>
+</head>
+<body>
+<div id="app">
+ <div id="backdrop"></div><video id="videoBg" playsinline muted loop></video><div id="shade"></div><canvas id="visual"></canvas><div id="edge"></div>
+ <div id="content">
+  <header><div class="brand">iBAILA <span>TOUCH</span></div><div class="status"><i class="dot"></i><span id="status">READY TO PLAY</span></div><div class="actions"><button class="glass" id="libraryBtn">＋ MEDIA</button><button class="glass" id="settingsBtn">⚙</button></div></header>
+  <main>
+   <section class="side"><div class="eyebrow">THE ATMOSPHERE</div><h2>Feel every frequency.</h2><p>Your music becomes light, motion and color. Add a track, artwork or a cinematic background video to begin.</p></section>
+   <section class="center">
+    <div class="cover-wrap"><img id="cover" alt="Album artwork" src="cover.svg"><div class="cover-label">NOW PLAYING · IBaila TOUCH</div></div>
+    <div class="track"><h1 id="title">Midnight Frequency</h1><p id="artist">iBaila Touch · Demo Session</p></div>
+    <canvas id="bars"></canvas>
+   </section>
+   <section class="side" style="justify-self:end;text-align:right"><div class="eyebrow">LIVE VISUAL ENGINE</div><h2 id="modeName">Cinematic Pulse</h2><p id="modeText">Deep bass blooms into soft light. High frequencies shimmer across the atmosphere.</p></section>
+  </main>
+  <footer>
+   <div class="progress"><div class="times"><span id="elapsed">0:00</span><span id="duration">--:--</span></div><input id="seek" type="range" min="0" max="100" value="0"></div>
+   <div class="controls"><button class="control" id="visualBtn" title="Change visual mode">◈</button><button class="control" id="backBtn">↶</button><button class="control primary" id="playBtn">▶</button><button class="control" id="forwardBtn">↷</button><button class="control" id="videoBtn">▣</button></div>
+   <div class="bottom"><small id="sourceLabel">DEMO VISUALIZER · LOCAL MEDIA READY</small><small>BUILT FOR THE MOMENT</small><div><button class="glass" id="micBtn">USE MIC</button></div></div>
+  </footer>
+ </div>
+ <div class="panel" id="panel"><h3>Customize your experience</h3>
+  <label>Glow intensity <input id="glow" type="range" min="0" max="100" value="55"></label>
+  <label>Visual sensitivity <input id="sensitivity" type="range" min="1" max="100" value="55"></label>
+  <button id="artPick">Choose album artwork <span>＋</span></button>
+  <button id="videoPick">Choose background video <span>＋</span></button>
+  <button id="audioPick">Choose audio file <span>＋</span></button>
+  <button id="demoBtn">Return to demo mode <span>↺</span></button>
+  <p style="font-size:10px;color:#aaa;line-height:1.5">Audio analysis works with audio played inside this prototype or microphone input. iPadOS does not let a web app capture another app's private audio stream.</p>
+ </div>
+ <input id="fileAudio" type="file" accept="audio/*"><input id="fileArt" type="file" accept="image/*"><input id="fileVideo" type="file" accept="video/*">
+ <audio id="audio" playsinline></audio><div id="toast"></div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const audio=$('audio'), video=$('videoBg'), canvas=$('visual'), ctx=canvas.getContext('2d'), bars=$('bars'), bctx=bars.getContext('2d');
+let audioCtx, analyser, source, micStream, data, playing=false, demo=true, raf=0, sensitivity=.55, glow=.55, mode=0, currentUrl=null, videoUrl=null;
+const modes=[['Cinematic Pulse','Deep bass blooms into soft light. High frequencies shimmer across the atmosphere.'],['Spectrum Flow','Frequency bands ripple outward in synchronized waves.'],['Aurora Drift','Slow-moving color fields react to the energy of your track.']];
+function toast(msg){$('toast').textContent=msg;$('toast').style.opacity=1;setTimeout(()=>$('toast').style.opacity=0,2300)}
+function resize(){let dpr=Math.min(devicePixelRatio||1,2);canvas.width=innerWidth*dpr;canvas.height=innerHeight*dpr;canvas.style.width=innerWidth+'px';canvas.style.height=innerHeight+'px';ctx.setTransform(dpr,0,0,dpr,0,0);bars.width=bars.clientWidth*dpr;bars.height=bars.clientHeight*dpr;bctx.setTransform(dpr,0,0,dpr,0,0)}
+addEventListener('resize',resize);resize();
+function setupAudio(){if(audioCtx)return;audioCtx=new (window.AudioContext||window.webkitAudioContext)();analyser=audioCtx.createAnalyser();analyser.fftSize=256;analyser.smoothingTimeConstant=.82;data=new Uint8Array(analyser.frequencyBinCount);source=audioCtx.createMediaElementSource(audio);source.connect(analyser);analyser.connect(audioCtx.destination)}
+function getLevel(){if(demo||!analyser)return .25+.22*Math.sin(performance.now()/420)+.12*Math.sin(performance.now()/170);analyser.getByteFrequencyData(data);let sum=0;for(let i=0;i<24;i++)sum+=data[i];return Math.min(1,(sum/24/255)*2.2*sensitivity)}
+function render(){let w=innerWidth,h=innerHeight,t=performance.now()/1000,level=getLevel();document.documentElement.style.setProperty('--pulse',level.toFixed(2));document.documentElement.style.setProperty('--glow',String(glow*(.5+level*.9)));let hue=(t*9+level*85+255)%360;document.documentElement.style.setProperty('--accent',`hsl(${hue},85%,72%)`);
+ctx.clearRect(0,0,w,h);let cx=w/2,cy=h*.49;
+for(let i=0;i<7;i++){let r=(Math.min(w,h)*(.12+i*.055))*(1+level*.14);ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.strokeStyle=`hsla(${hue+i*13},90%,70%,${.035+level*.025})`;ctx.lineWidth=1+level*2;ctx.stroke()}
+for(let i=0;i<48;i++){let a=i/48*Math.PI*2;let pulse=.5+Math.sin(t*1.6+i*.7)*.5;let r=Math.min(w,h)*(.27+level*.09+pulse*.018);let x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r;ctx.beginPath();ctx.arc(x,y,1+level*3,0,Math.PI*2);ctx.fillStyle=`hsla(${hue+i*2},95%,75%,${.22+pulse*.4})`;ctx.fill()}
+let bw=bars.clientWidth,bh=bars.clientHeight;bctx.clearRect(0,0,bw,bh);let count=48,gap=3,barW=(bw-gap*(count-1))/count;
+for(let i=0;i<count;i++){let v=demo?(Math.sin(t*3+i*.48)+1)/2*(.25+.55*Math.abs(Math.sin(t*1.2))):data?data[Math.min(data.length-1,Math.floor(i/count*data.length))]/255:0;let height=Math.max(3,v*bh*.9*(.5+sensitivity));let x=i*(barW+gap);let grad=bctx.createLinearGradient(0,bh-height,0,bh);grad.addColorStop(0,`hsla(${hue+i*1.5},95%,80%,.95)`);grad.addColorStop(1,`hsla(${hue+i*1.5},90%,55%,.25)`);bctx.fillStyle=grad;bctx.beginPath();bctx.roundRect(x,bh-height,barW,height,barW/2);bctx.fill()}
+raf=requestAnimationFrame(render)}
+render();
+function setStatus(s){$('status').textContent=s}
+function fmt(s){if(!isFinite(s))return'--:--';return Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0')}
+$('playBtn').onclick=async()=>{if(demo){toast('Choose an audio file to play your own music');$('panel').classList.add('open');return}try{await audioCtx?.resume();if(audio.paused){await audio.play();$('playBtn').textContent='Ⅱ';playing=true;setStatus('PLAYING')}else{audio.pause();$('playBtn').textContent='▶';playing=false;setStatus('PAUSED')}}catch(e){toast('Tap play again to allow audio playback')}};
+$('audioPick').onclick=()=>$('fileAudio').click();$('artPick').onclick=()=>$('fileArt').click();$('videoPick').onclick=()=>$('fileVideo').click();$('libraryBtn').onclick=()=>{$('panel').classList.toggle('open')};$('settingsBtn').onclick=()=>{$('panel').classList.toggle('open')};
+$('fileAudio').onchange=e=>{let f=e.target.files[0];if(!f)return;currentUrl=URL.createObjectURL(f);audio.src=currentUrl;setupAudio();demo=false;$('title').textContent=f.name.replace(/\.[^.]+$/,'');$('artist').textContent='Local audio · iBaila Touch';$('sourceLabel').textContent='LOCAL AUDIO · LIVE ANALYSIS';$('playBtn').textContent='▶';setStatus('TRACK LOADED');$('panel').classList.remove('open');toast('Track loaded. Press play.')};
+$('fileArt').onchange=e=>{let f=e.target.files[0];if(!f)return;let u=URL.createObjectURL(f);$('cover').src=u;$('backdrop').style.backgroundImage=`url("${u}")`;toast('Artwork updated')};
+$('fileVideo').onchange=e=>{let f=e.target.files[0];if(!f)return;videoUrl=URL.createObjectURL(f);video.src=videoUrl;video.style.display='block';video.play().catch(()=>{});$('sourceLabel').textContent='CUSTOM BACKGROUND VIDEO';toast('Background video loaded')};
+$('demoBtn').onclick=()=>{demo=true;audio.pause();$('playBtn').textContent='▶';$('title').textContent='Midnight Frequency';$('artist').textContent='iBaila Touch · Demo Session';$('sourceLabel').textContent='DEMO VISUALIZER · LOCAL MEDIA READY';video.pause();video.style.display='none';setStatus('DEMO MODE');$('panel').classList.remove('open')};
+$('glow').oninput=e=>glow=e.target.value/100;$('sensitivity').oninput=e=>sensitivity=e.target.value/100;
+$('micBtn').onclick=async()=>{try{micStream=await navigator.mediaDevices.getUserMedia({audio:true});if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();analyser=audioCtx.createAnalyser();analyser.fftSize=256;data=new Uint8Array(analyser.frequencyBinCount);let mic=audioCtx.createMediaStreamSource(micStream);mic.connect(analyser);demo=false;setStatus('MIC ANALYSIS');$('sourceLabel').textContent='MICROPHONE INPUT · LIVE ANALYSIS';toast('Microphone visualizer active')}catch(e){toast('Microphone permission was not granted')}};
+$('visualBtn').onclick=()=>{mode=(mode+1)%modes.length;$('modeName').textContent=modes[mode][0];$('modeText').textContent=modes[mode][1];toast('Visual mode: '+modes[mode][0])};
+$('videoBtn').onclick=()=>{if(!video.src){toast('Add a background video in settings');$('panel').classList.add('open');return}video.style.display=video.style.display==='none'?'block':'none';if(video.style.display==='block')video.play().catch(()=>{})};
+$('backBtn').onclick=()=>{if(!demo)audio.currentTime=Math.max(0,audio.currentTime-10)};$('forwardBtn').onclick=()=>{if(!demo&&isFinite(audio.duration))audio.currentTime=Math.min(audio.duration,audio.currentTime+10)};
+audio.ontimeupdate=()=>{$('elapsed').textContent=fmt(audio.currentTime);$('duration').textContent=fmt(audio.duration);if(audio.duration)$('seek').value=audio.currentTime/audio.duration*100};
+$('seek').oninput=e=>{if(!demo&&isFinite(audio.duration))audio.currentTime=e.target.value/100*audio.duration};
+audio.onended=()=>{$('playBtn').textContent='▶';setStatus('TRACK ENDED')};
+document.addEventListener('click',e=>{if(!$('panel').contains(e.target)&&e.target!==$('settingsBtn')&&e.target!==$('libraryBtn'))$('panel').classList.remove('open')});
+if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
+</script>
+</body>
+</html>
